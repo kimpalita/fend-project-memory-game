@@ -39,11 +39,19 @@ function deal(cards) {
   document.querySelector('.deck').appendChild(fragment);
 }
 
+function openCard(event) {
+const clicked = event.target
+
+  if(clicked.nodeName == 'LI' && !clicked.classList.contains('match')) {
+    console.log('LI was clicked!');
+    clicked.classList.add('open', 'show');
+  }
+
+}
+
 deal(cardDeck);
 
-document.querySelector('.deck').addEventListener('click', function() {
-  console.log('card has been clicked!');
-})
+document.querySelector('.deck').addEventListener('click', openCard)
 
 
 /*
