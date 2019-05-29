@@ -3,6 +3,8 @@
  */
 
 let cardNames = ['anchor', 'diamond', 'bomb', 'leaf', 'bolt', 'bicycle','paper-plane-o', 'cube' ];
+let openedCards = [];
+let matchedCards = [];
 
 let cardDeck = cardNames.concat(cardNames);
 let moveCounter = 0;
@@ -39,12 +41,19 @@ function deal(cards) {
   document.querySelector('.deck').appendChild(fragment);
 }
 
+function validateCard(card) {
+  const cardName = card.firstElementChild.className;
+}
+
 function openCard(event) {
 const clicked = event.target
 
-  if(clicked.nodeName == 'LI' && !clicked.classList.contains('match')) {
-    console.log('LI was clicked!');
+  if(clicked.nodeName == 'LI'
+    && !clicked.classList.contains('match') && openedCards.length < 2) {
+
     clicked.classList.add('open', 'show');
+    openedCards.push(clicked.firstElementChild.className);
+    validateCard(clicked);
   }
 
 }
