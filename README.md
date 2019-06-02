@@ -1,6 +1,12 @@
 # Memory Game Project
 
-## Table of Contents
+## TO DO
+
+* Add CSS to make responsive
+* Add CSS card animations
+* Make timer run again once restart
+
+<!-- ## Table of Contents
 
 * [Instructions](#instructions)
 * [Contributing](#contributing)
@@ -17,4 +23,4 @@ For specific, detailed instructions, look at the project instructions in the [Ud
 
 This repository is the starter code for _all_ Udacity students. Therefore, we most likely will not accept pull requests.
 
-For details, check out [CONTRIBUTING.md](CONTRIBUTING.md).
+For details, check out [CONTRIBUTING.md](CONTRIBUTING.md). -->

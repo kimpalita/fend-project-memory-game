@@ -32,9 +32,9 @@ function incrementMoves() {
   moves += 1;
   printMoves();
 
-  if (moves <= 4) {
+  if (moves <= 20) {
     starRating = 3;
-  } else if (moves <= 6) {
+  } else if (moves <= 32) {
     starRating = 2;
     printRating();
   } else {
@@ -47,6 +47,7 @@ function printMoves() {
   document.querySelector('.moves').textContent = moves;
 }
 
+// Star-rating functions
 function rateMoves() {
   if (moves <= 4) {
     starRating = 3;
@@ -91,6 +92,7 @@ function dealCards() {
 }
 
 function winGame() {
+  stopTimer();
   console.log('YOU WIN!!!');
   alert('All cards have matched! You did it in ' + moves + 'moves, your star rating is ' + starRating + 'stars and your time was ');
 }
@@ -154,19 +156,65 @@ function openCard(event) {
   }
 }
 
-//Win function
-
 //Restart function; empties 'ul.deck', resets move-counter and redeals the cards.
 function restart(){
   document.querySelector('.deck').innerHTML = '';
   resetMoves();
+  stopTimer();
+  resetTimer();
   resetRating();
   dealCards();
+
+  document.querySelector('.deck').addEventListener('click', start, {once: true});
 }
+
+//TIMER FUNCTIONS adapted from: codepen.io/pianoace/pen/YJOrMz
+let now = 0;
+let interval = null;
+const timer = document.querySelector('.timer');
+
+function startTimer() {
+
+  let elapsedMil = Date.now() - now;
+
+  let mil = (elapsedMil).toFixed(0) % 100;
+  let sec = Math.floor(elapsedMil/1000) % 60;
+  let min = Math.floor(elapsedMil/60000) % 60;
+
+  mil = padTime(mil);
+  sec = padTime(sec);
+  min = padTime(min);
+
+  function padTime(num) {
+    if (num < 10) {
+      num = "0" + num;
+    }
+    return num;
+  }
+
+  timer.textContent = min + ":" + sec + ":" + mil;
+}
+
+function start() {
+  now = Date.now();
+  interval = window.setInterval(startTimer, 10);
+}
+
+function stopTimer() {
+  window.clearInterval(interval);
+}
+
+function resetTimer() {
+  timer.textContent = "00:00:00";
+}
+
+
 
 dealCards();
 
 document.querySelector('.deck').addEventListener('click', openCard);
+
+document.querySelector('.deck').addEventListener('click', start, {once: true});
 
 document.querySelector('.restart').addEventListener('click', restart);
 
