@@ -7,7 +7,6 @@ const cardDeck = cardNames.concat(cardNames);
 let moves = 0;
 let starRating = 3;
 let openedCards = [];
-let matchedCards = [];
 
 // Shuffle function from http://stackoverflow.com/a/2450976
 function shuffle(array) {
@@ -31,6 +30,7 @@ function resetMoves() {
 
 function incrementMoves() {
   moves += 1;
+  printMoves();
 
   if (moves <= 4) {
     starRating = 3;
@@ -41,8 +41,6 @@ function incrementMoves() {
     starRating = 1;
     printRating();
   }
-
-  printMoves();
 }
 
 function printMoves() {
@@ -92,6 +90,27 @@ function dealCards() {
   document.querySelector('.deck').appendChild(fragment);
 }
 
+function winGame() {
+  console.log('YOU WIN!!!');
+  alert('All cards have matched! You did it in ' + moves + 'moves, your star rating is ' + starRating + 'stars and your time was ');
+}
+
+function checkIfWon() {
+  const matched = document.querySelectorAll('.match');
+  if (matched.length === 16) {
+    winGame();
+  }
+}
+
+function forceWin() {
+  const cards = document.querySelectorAll('.card');
+  cards.forEach(function(value, index, listObj){
+    value.classList.remove('open', 'show');
+    value.classList.add('match');
+  })
+
+  checkIfWon();
+}
 
 function validateCard() {
 
@@ -103,6 +122,8 @@ function validateCard() {
         value.classList.remove('open', 'show');
         value.classList.add('match');
       })
+
+      checkIfWon();
 
     } else {
       console.log('the cards DON\'T match!');
