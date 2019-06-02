@@ -1,15 +1,13 @@
-/*
- * Create a list that holds all of your cards
- */
+//Deck of unique cards
+const cardNames = ['anchor', 'diamond', 'bomb', 'leaf', 'bolt', 'bicycle','paper-plane-o', 'cube' ];
 
-let cardNames = ['anchor', 'diamond', 'bomb', 'leaf', 'bolt', 'bicycle','paper-plane-o', 'cube' ];
-let cardDeck = cardNames.concat(cardNames);
+//Create full deck with duplicate cards
+const cardDeck = cardNames.concat(cardNames);
 
-let moveCounter = 0;
-
+let moves = 0;
+let starRating = 3;
 let openedCards = [];
 let matchedCards = [];
-
 
 // Shuffle function from http://stackoverflow.com/a/2450976
 function shuffle(array) {
@@ -22,19 +20,65 @@ function shuffle(array) {
         array[currentIndex] = array[randomIndex];
         array[randomIndex] = temporaryValue;
     }
-
     return array;
 }
 
-function resetCounter() {
-  moveCounter = 0;
-  document.querySelector('.moves').textContent = moveCounter;
+// Move-counter functions: reset, increment, print
+function resetMoves() {
+  moves = 0;
+  printMoves();
 }
 
-function deal() {
-  resetCounter();
-  shuffle(cardDeck);
+function incrementMoves() {
+  moves += 1;
 
+  if (moves <= 4) {
+    starRating = 3;
+  } else if (moves <= 6) {
+    starRating = 2;
+    printRating();
+  } else {
+    starRating = 1;
+    printRating();
+  }
+
+  printMoves();
+}
+
+function printMoves() {
+  document.querySelector('.moves').textContent = moves;
+}
+
+function rateMoves() {
+  if (moves <= 4) {
+    starRating = 3;
+  } else if (moves <= 6) {
+    starRating = 2;
+  } else {
+    starRating = 1;
+  }
+  printRating();
+}
+
+function printRating() {
+  const stars = document.querySelectorAll('.stars .fa-star');
+
+  for (i = starRating; i < stars.length; i++) {
+    stars[i].classList.replace('fa-star', 'fa-star-o');
+  }
+}
+
+function resetRating() {
+  const stars = document.querySelectorAll('.stars .fa-star-o');
+
+  for(i = 0; stars.length > 0 && i < stars.length; i++) {
+    stars[i].classList.replace('fa-star-o', 'fa-star');
+  }
+}
+
+//Deal cards by shuffle cards, then create HTML fragment for 'ul.deck'
+function dealCards() {
+  shuffle(cardDeck);
   const fragment = document.createDocumentFragment();
 
   for(card of cardDeck) {
@@ -44,66 +88,66 @@ function deal() {
     cardContainer.innerHTML = `<i class="fa fa-${card}"></i>`;
     fragment.appendChild(cardContainer);
   }
+
   document.querySelector('.deck').appendChild(fragment);
 }
 
-function incrementCounter() {
-  moveCounter += 1;
-  document.querySelector('.moves').textContent = moveCounter;
-}
 
 function validateCard() {
-  //const cardName = card.firstElementChild.className;
-  const cardPair =  document.querySelectorAll('.open.show');
-  if(openedCards[0] === openedCards[1]) {
-    console.log('the cards match!');
-    cardPair.forEach(function(value, index, listObj){
-      value.classList.remove('open', 'show');
-      value.classList.add('match');
-    })
 
-    if(document.querySelectorAll('.match').length === cardDeck.length) {
-      alert('You\'ve won!');
-    }
+    const cards =  document.querySelectorAll('.open.show');
 
-  } else {
-    console.log('the cards DON\'T match!');
-    setTimeout(function(){
-      cardPair.forEach(function(value, index, listObj){
+    if(openedCards[0] === openedCards[1]) {
+      console.log('the cards match!');
+      cards.forEach(function(value, index, listObj){
         value.classList.remove('open', 'show');
+        value.classList.add('match');
       })
-    }, 1000)
-  }
+
+    } else {
+      console.log('the cards DON\'T match!');
+      setTimeout(function(){
+        cards.forEach(function(value, index, listObj){
+          value.classList.remove('open', 'show');
+        })
+      }, 500)
+    }
   openedCards.length = 0;
 }
 
+//openCard function called from event listener when a card is clicked
 function openCard(event) {
-  const clicked = event.target
+  const clickedElement = event.target;
 
-  if(clicked.nodeName == 'LI'
-    && !clicked.classList.contains('match')
-    && !clicked.classList.contains('open')) {
-    incrementCounter();
-    clicked.classList.add('open', 'show');
-    openedCards.push(clicked.firstElementChild.className);
+  if(clickedElement.matches('.card') && !clickedElement.classList.contains('match') && !clickedElement.classList.contains('open')) {
 
+    console.log('A card was clicked!');
+    clickedElement.classList.toggle('open');
+    clickedElement.classList.toggle('show');
+
+    incrementMoves();
+    openedCards.push(clickedElement.dataset.cardName);
     if(openedCards.length == 2){
       validateCard();
     }
   }
 }
 
-deal();
+//Win function
+
+//Restart function; empties 'ul.deck', resets move-counter and redeals the cards.
+function restart(){
+  document.querySelector('.deck').innerHTML = '';
+  resetMoves();
+  resetRating();
+  dealCards();
+}
+
+dealCards();
 
 document.querySelector('.deck').addEventListener('click', openCard);
 
-function reset(){
-  moveCounter = 0;
-  document.querySelector('.deck').innerHTML = "";
-  deal();
-}
-
-document.querySelector('.restart').addEventListener('click', reset);
+document.querySelector('.restart').addEventListener('click', restart);
 
 
 /*
