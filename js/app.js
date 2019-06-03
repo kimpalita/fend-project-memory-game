@@ -137,7 +137,7 @@ function validateCard() {
       cards.forEach(function(value, index, listObj) {
         value.classList.remove('open', 'show');
       })
-    }, 300)
+    }, 500)
   }
   openedCards.length = 0;
 }
