@@ -4,7 +4,8 @@
 
 * Add CSS to make responsive
 * Add CSS card animations
-* Make timer run again once restart
+* Simplify code
+* Write README file
 
 <!-- ## Table of Contents
 

@@ -1,25 +1,45 @@
-//Deck of unique cards
-const cardNames = ['anchor', 'diamond', 'bomb', 'leaf', 'bolt', 'bicycle','paper-plane-o', 'cube' ];
-
-//Create full deck with duplicate cards
+//Array of unique card names
+const cardNames = ['anchor', 'diamond', 'bomb', 'leaf', 'bolt', 'bicycle', 'paper-plane-o', 'cube'];
+//Create full card deck with duplicate card names
 const cardDeck = cardNames.concat(cardNames);
 
+//Variables
 let moves = 0;
 let starRating = 3;
 let openedCards = [];
 
+let now = 0;
+let interval = null;
+const timer = document.querySelector('.timer');
+
 // Shuffle function from http://stackoverflow.com/a/2450976
 function shuffle(array) {
-    var currentIndex = array.length, temporaryValue, randomIndex;
+  var currentIndex = array.length,
+    temporaryValue, randomIndex;
 
-    while (currentIndex !== 0) {
-        randomIndex = Math.floor(Math.random() * currentIndex);
-        currentIndex -= 1;
-        temporaryValue = array[currentIndex];
-        array[currentIndex] = array[randomIndex];
-        array[randomIndex] = temporaryValue;
-    }
-    return array;
+  while (currentIndex !== 0) {
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+    temporaryValue = array[currentIndex];
+    array[currentIndex] = array[randomIndex];
+    array[randomIndex] = temporaryValue;
+  }
+  return array;
+}
+
+//Deal cards by shuffling cards, then create HTML fragment for 'ul.deck'
+function dealCards() {
+  shuffle(cardDeck);
+  const fragment = document.createDocumentFragment();
+
+  for (card of cardDeck) {
+    const cardContainer = document.createElement('li');
+    cardContainer.classList.add('card');
+    cardContainer.dataset.cardName = card;
+    cardContainer.innerHTML = `<i class="fa fa-${card}"></i>`;
+    fragment.appendChild(cardContainer);
+  }
+  document.querySelector('.deck').appendChild(fragment);
 }
 
 // Move-counter functions: reset, increment, print
@@ -32,14 +52,8 @@ function incrementMoves() {
   moves += 1;
   printMoves();
 
-  if (moves <= 20) {
-    starRating = 3;
-  } else if (moves <= 32) {
-    starRating = 2;
-    printRating();
-  } else {
-    starRating = 1;
-    printRating();
+  if (moves > 20) {
+    rateMoves();
   }
 }
 
@@ -47,11 +61,9 @@ function printMoves() {
   document.querySelector('.moves').textContent = moves;
 }
 
-// Star-rating functions
+// Star-rating functions; calculate rating, print, and reset
 function rateMoves() {
-  if (moves <= 4) {
-    starRating = 3;
-  } else if (moves <= 6) {
+  if (moves <= 32) {
     starRating = 2;
   } else {
     starRating = 1;
@@ -70,116 +82,102 @@ function printRating() {
 function resetRating() {
   const stars = document.querySelectorAll('.stars .fa-star-o');
 
-  for(i = 0; stars.length > 0 && i < stars.length; i++) {
+  for (i = 0; stars.length > 0 && i < stars.length; i++) {
     stars[i].classList.replace('fa-star-o', 'fa-star');
   }
 }
 
-//Deal cards by shuffle cards, then create HTML fragment for 'ul.deck'
-function dealCards() {
-  shuffle(cardDeck);
-  const fragment = document.createDocumentFragment();
-
-  for(card of cardDeck) {
-    const cardContainer = document.createElement('li');
-    cardContainer.classList.add('card');
-    cardContainer.dataset.cardName = card;
-    cardContainer.innerHTML = `<i class="fa fa-${card}"></i>`;
-    fragment.appendChild(cardContainer);
-  }
-
-  document.querySelector('.deck').appendChild(fragment);
-}
-
+// Functions to validate if game is won, with callback if true
 function winGame() {
+  const totalTime = getTime();
   stopTimer();
-  console.log('YOU WIN!!!');
-  alert('All cards have matched! You did it in ' + moves + 'moves, your star rating is ' + starRating + 'stars and your time was ');
+
+  setTimeout(
+    function() {
+      alert('All cards have matched! You did it in ' + moves + ' moves, your star rating is ' + starRating + ' stars and your time was ' + totalTime);
+    }, 800
+  )
 }
 
 function checkIfWon() {
   const matched = document.querySelectorAll('.match');
-  if (matched.length === 16) {
+  if (matched.length === cardDeck.length) {
     winGame();
   }
 }
 
-function forceWin() {
-  const cards = document.querySelectorAll('.card');
-  cards.forEach(function(value, index, listObj){
-    value.classList.remove('open', 'show');
-    value.classList.add('match');
-  })
+// FUNCTION USED FOR TESTING WINNNING SCENARIO
+// function forceWin() {
+//   const cards = document.querySelectorAll('.card');
+//   cards.forEach(function(value, index, listObj){
+//     value.classList.remove('open', 'show');
+//     value.classList.add('match');
+//   })
+//   checkIfWon();
+// }
 
-  checkIfWon();
-}
 
+//Listener function to open card when .card is clicked and validation to see if cards match
 function validateCard() {
 
-    const cards =  document.querySelectorAll('.open.show');
+  const cards = document.querySelectorAll('.open.show');
 
-    if(openedCards[0] === openedCards[1]) {
-      console.log('the cards match!');
-      cards.forEach(function(value, index, listObj){
+  if (openedCards[0] === openedCards[1]) {
+    console.log('Cards match!');
+    cards.forEach(function(value, index, listObj) {
+      value.classList.remove('open', 'show');
+      value.classList.add('match');
+    })
+
+    checkIfWon();
+
+  } else {
+    console.log('Card DO NOT match!');
+    setTimeout(function() {
+      cards.forEach(function(value, index, listObj) {
         value.classList.remove('open', 'show');
-        value.classList.add('match');
       })
-
-      checkIfWon();
-
-    } else {
-      console.log('the cards DON\'T match!');
-      setTimeout(function(){
-        cards.forEach(function(value, index, listObj){
-          value.classList.remove('open', 'show');
-        })
-      }, 500)
-    }
+    }, 300)
+  }
   openedCards.length = 0;
 }
 
-//openCard function called from event listener when a card is clicked
 function openCard(event) {
   const clickedElement = event.target;
 
-  if(clickedElement.matches('.card') && !clickedElement.classList.contains('match') && !clickedElement.classList.contains('open')) {
+  if (clickedElement.matches('.card') && !clickedElement.classList.contains('match') && !clickedElement.classList.contains('open')) {
 
-    console.log('A card was clicked!');
     clickedElement.classList.toggle('open');
     clickedElement.classList.toggle('show');
 
     incrementMoves();
     openedCards.push(clickedElement.dataset.cardName);
-    if(openedCards.length == 2){
+    if (openedCards.length == 2) {
       validateCard();
     }
   }
 }
 
 //Restart function; empties 'ul.deck', resets move-counter and redeals the cards.
-function restart(){
+function restart() {
   document.querySelector('.deck').innerHTML = '';
   resetMoves();
-  stopTimer();
   resetTimer();
   resetRating();
   dealCards();
 
-  document.querySelector('.deck').addEventListener('click', start, {once: true});
+  document.querySelector('.deck').addEventListener('click', startTimer, {
+    once: true
+  });
 }
 
-//TIMER FUNCTIONS adapted from: codepen.io/pianoace/pen/YJOrMz
-let now = 0;
-let interval = null;
-const timer = document.querySelector('.timer');
-
-function startTimer() {
+//Timer functions adapted from: codepen.io/pianoace/pen/YJOrMz
+function getTime() {
 
   let elapsedMil = Date.now() - now;
-
   let mil = (elapsedMil).toFixed(0) % 100;
-  let sec = Math.floor(elapsedMil/1000) % 60;
-  let min = Math.floor(elapsedMil/60000) % 60;
+  let sec = Math.floor(elapsedMil / 1000) % 60;
+  let min = Math.floor(elapsedMil / 60000) % 60;
 
   mil = padTime(mil);
   sec = padTime(sec);
@@ -187,17 +185,23 @@ function startTimer() {
 
   function padTime(num) {
     if (num < 10) {
-      num = "0" + num;
+      num = '0' + num;
     }
     return num;
   }
 
-  timer.textContent = min + ":" + sec + ":" + mil;
+  let time = min + ':' + sec + ':' + mil;
+  return time;
 }
 
-function start() {
+function printTime() {
+  time = getTime();
+  timer.textContent = time;
+}
+
+function startTimer() {
   now = Date.now();
-  interval = window.setInterval(startTimer, 10);
+  interval = window.setInterval(printTime, 10);
 }
 
 function stopTimer() {
@@ -205,7 +209,8 @@ function stopTimer() {
 }
 
 function resetTimer() {
-  timer.textContent = "00:00:00";
+  stopTimer();
+  timer.textContent = '00:00:00';
 }
 
 
@@ -214,27 +219,8 @@ dealCards();
 
 document.querySelector('.deck').addEventListener('click', openCard);
 
-document.querySelector('.deck').addEventListener('click', start, {once: true});
+document.querySelector('.deck').addEventListener('click', startTimer, {
+  once: true
+});
 
 document.querySelector('.restart').addEventListener('click', restart);
-
-
-/*
- * Display the cards on the page
- *   - shuffle the list of cards using the provided 'shuffle' method below
- *   - loop through each card and create its HTML
- *   - add each card's HTML to the page
- */
-
-
-
-/*
- * set up the event listener for a card. If a card is clicked:
- *  - display the card's symbol (put this functionality in another function that you call from this one)
- *  - add the card to a *list* of 'open' cards (put this functionality in another function that you call from this one)
- *  - if the list already has another card, check to see if the two cards match
- *    + if the cards do match, lock the cards in the open position (put this functionality in another function that you call from this one)
- *    + if the cards do not match, remove the cards from the list and hide the card's symbol (put this functionality in another function that you call from this one)
- *    + increment the move counter and display it on the page (put this functionality in another function that you call from this one)
- *    + if all cards have matched, display a message with the final score (put this functionality in another function that you call from this one)
- */
