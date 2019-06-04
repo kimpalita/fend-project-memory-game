@@ -1,7 +1,7 @@
 //Array of unique card names
 const cardNames = ['anchor', 'diamond', 'bomb', 'leaf', 'bolt', 'bicycle', 'paper-plane-o', 'cube'];
 //Create full card deck with duplicate card names
-const cardDeck = cardNames.concat(cardNames);
+const cardDeck = [...cardNames, ...cardNames];
 
 //Variables
 let moves = 0;
@@ -49,12 +49,10 @@ function resetMoves() {
 }
 
 function incrementMoves() {
-  moves += 1;
+  ++moves;
   printMoves();
 
-  if (moves > 20) {
-    rateMoves();
-  }
+  if(moves > 20 && rateMoves());
 }
 
 function printMoves() {
@@ -63,11 +61,7 @@ function printMoves() {
 
 // Star-rating functions; calculate rating, print, and reset
 function rateMoves() {
-  if (moves <= 32) {
-    starRating = 2;
-  } else {
-    starRating = 1;
-  }
+  moves <= 32 ? (starRating = 2) : (starRating = 1);
   printRating();
 }
 
@@ -94,7 +88,10 @@ function winGame() {
 
   setTimeout(
     function() {
-      alert('All cards have matched! You did it in ' + moves + ' moves, your star rating is ' + starRating + ' stars and your time was ' + totalTime);
+      alert(`
+        Woohoo! All cards have matched!
+        You did it in ${moves} moves and your star rating is ${starRating} stars.
+        That took you ${totalTime} in total.`);
     }, 800
   )
 }
@@ -106,7 +103,7 @@ function checkIfWon() {
   }
 }
 
-// FUNCTION USED FOR TESTING WINNNING SCENARIO
+//FUNCTION USED FOR TESTING WINNNING SCENARIO
 // function forceWin() {
 //   const cards = document.querySelectorAll('.card');
 //   cards.forEach(function(value, index, listObj){
@@ -160,6 +157,7 @@ function openCard(event) {
 
 //Restart function; empties 'ul.deck', resets move-counter and redeals the cards.
 function restart() {
+  openedCards.length = 0;
   document.querySelector('.deck').innerHTML = '';
   resetMoves();
   resetTimer();

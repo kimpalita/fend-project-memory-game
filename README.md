@@ -4,6 +4,11 @@
 
 Project submission for [Udacity's Front-End Web Developer Nanodegree](https://udacity.com/course/front-end-web-developer-nanodegree--nd001)
 
+## Dependencies
+
+* Font used: [Coda](https://fonts.google.com/specimen/Coda) from Google Font
+* [Font Awesome](https://fontawesome.com)
+
 
 ## TO DO
 
